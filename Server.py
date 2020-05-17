@@ -20,20 +20,17 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             data = eval(self.request.recv(4096).decode('utf-8'))
             if data[0] == '1':
                 res = find_customer(data[1])
-            if data[0] == '2':
+            elif data[0] == '2':
                 res = add_customer(data[1])
-            if data[0] == '3':
+            elif data[0] == '3':
                 res = delete_customer(data[1])
-            if data[0] == '7':
+            elif data[0] == '7':
                 res = get_data_for_print_report()
-            if data[0] == '8':
+            elif data[0] == '8':
                 print(data[1])
                 self.request.sendall(str(data).encode())
                 break;
-            if isinstance(res, list):
-                self.request.sendall(str(res).encode())
-            else:
-                self.request.sendall(res.encode())
+            self.request.sendall(str(res).encode())
 
 
     # def update_customer_age():
@@ -54,12 +51,12 @@ def find_customer(cust_name):
     if cust_name in PYTHON_DB:
         return PYTHON_DB[cust_name]
     else:
-        return 'Customer not found...'
+        return ['$ERROR$: Customer not found']
 
 
 def add_customer(cust_data):
     if cust_data[0] in PYTHON_DB:
-        return 'Customer already exists...'
+        return ['$ERROR$: Customer already exists']
     else:
         PYTHON_DB[cust_data[0]] = cust_data[1]
     return cust_data
@@ -69,7 +66,7 @@ def delete_customer(cust_name):
     if cust_name in PYTHON_DB:
         del PYTHON_DB[cust_name]
     else:
-        return 'Customer does not exist...'
+        return ['$ERROR$: Customer does not exist']
     return [cust_name]
 
 

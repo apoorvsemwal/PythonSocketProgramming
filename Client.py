@@ -35,8 +35,10 @@ def do_client_send_receive(sock, data):
 def find_customer(sock):
     cust_name = input("Enter the customer name to find: ")
     data = ['1', cust_name]
-    do_client_send_receive(sock, data)
-    if isinstance(res, list):
+    res = do_client_send_receive(sock, data)
+    if isinstance(res[0], str) and res[0][0:7] == '$ERROR$':
+        print(res[0])
+    else:
         print('Customer record for: ' + cust_name)
         for idx, val in enumerate(res):
             if idx == 0:
@@ -45,22 +47,20 @@ def find_customer(sock):
                 print('Address - ' + val)
             elif idx == 2:
                 print('Phone - ' + val)
-    else:
-        print(res)
     print("\n")
 
 
-def add_customer():
+def add_customer(sock):
     cust_name = input("Enter the customer name to add: ")
     cust_age = input("Enter customer's age: ")
     cust_address = input("Enter customer's address: ")
     cust_phone = input("Enter customer's phone number: ")
     cust_data = [2, [cust_name, cust_age, cust_address, cust_phone]]
     res = do_client_send_receive(sock, cust_data)
-    if isinstance(res, list):
-        print('New customer ' + cust_name + ' successfully added to DB.')
+    if isinstance(res[0], str) and res[0][0:7] == '$ERROR$':
+        print(res[0])
     else:
-        print(res)
+        print('New customer ' + cust_name + ' successfully added to DB.')
     print("\n")
 
 
@@ -68,10 +68,10 @@ def delete_customer(sock):
     cust_name = input("Enter the customer name to delete: ")
     cust_data = [3, cust_name]
     res = do_client_send_receive(sock, cust_data)
-    if isinstance(res, list):
-        print('Customer ' + cust_name + ' successfully deleted from DB.')
+    if isinstance(res[0], str) and res[0][0:7] == '$ERROR$':
+        print(res[0])
     else:
-        print(res)
+        print('Customer ' + cust_name + ' successfully deleted from DB.')
     print("\n")
 
 
@@ -106,8 +106,8 @@ def exit_code(sock):
     print("Good bye!!!!")
     data = ['8', 'Client said Good bye!!!!']
     sock.sendall(str(data).encode())
-    res = eval(sock.recv(4096).decode('utf-8'))
-    return res
+    eval(sock.recv(4096).decode('utf-8'))
+    return 'Exit'
 
 
 def invalid_choice():
@@ -133,7 +133,7 @@ def start_client():
     while True:
         inp = display_menu_and_get_user_input()
         res = process_user_input(inp, sock)
-        if res and res[0] == '8':
+        if res == 'Exit':
             sock.close()
             break
 
