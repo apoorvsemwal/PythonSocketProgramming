@@ -18,33 +18,25 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         print('New client communication started....')
         while True:
             data = eval(self.request.recv(4096).decode('utf-8'))
-            if data[0] == '1':
+            if data[0] == 1:
                 res = find_customer(data[1])
-            elif data[0] == '2':
+            elif data[0] == 2:
                 res = add_customer(data[1])
-            elif data[0] == '3':
+            elif data[0] == 3:
                 res = delete_customer(data[1])
-            elif data[0] == '7':
+            elif data[0] == 4:
+                res = update_customer_data(data[1], 0)
+            elif data[0] == 5:
+                res = update_customer_data(data[1], 1)
+            elif data[0] == 6:
+                res = update_customer_data(data[1], 2)
+            elif data[0] == 7:
                 res = get_data_for_print_report()
-            elif data[0] == '8':
+            elif data[0] == 8:
                 print(data[1])
                 self.request.sendall(str(data).encode())
                 break;
             self.request.sendall(str(res).encode())
-
-
-    # def update_customer_age():
-    #     pass
-    #
-    #
-    # def update_customer_address():
-    #     pass
-    #
-    #
-    # def update_customer_phone():
-    #     pass
-    #
-    #
 
 
 def find_customer(cust_name):
@@ -68,6 +60,14 @@ def delete_customer(cust_name):
     else:
         return ['$ERROR$: Customer does not exist']
     return [cust_name]
+
+
+def update_customer_data(cust_data, field_idx):
+    if cust_data[0] in PYTHON_DB:
+        PYTHON_DB[cust_data[0]][field_idx] = cust_data[1]
+    else:
+        return ['$ERROR$: Customer not found']
+    return cust_data
 
 
 def get_data_for_print_report():

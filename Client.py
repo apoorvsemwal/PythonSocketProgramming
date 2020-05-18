@@ -32,59 +32,103 @@ def do_client_send_receive(sock, data):
         print('Issues connecting to server...')
 
 
-def find_customer(sock):
-    cust_name = input("Enter the customer name to find: ")
-    data = ['1', cust_name]
-    res = do_client_send_receive(sock, data)
+def get_valid_customer_name_input(prompt_msg):
+    cust_name = input(prompt_msg)
+    if not cust_name:
+        print('Customer name cannot be empty. Please try again...')
+        return
+    return cust_name
+
+
+def display_results(res, action, cust_name):
+    msg = ""
     if isinstance(res[0], str) and res[0][0:7] == '$ERROR$':
         print(res[0])
-    else:
-        print('Customer record for: ' + cust_name)
+    elif action == 'Find':
+        msg = 'Customer record for: ' + cust_name + '\n'
         for idx, val in enumerate(res):
             if idx == 0:
-                print('Age - ' + val)
+                msg = msg + 'Age - ' + val + '\n'
             elif idx == 1:
-                print('Address - ' + val)
+                msg = msg + 'Address - ' + val + '\n'
             elif idx == 2:
-                print('Phone - ' + val)
+                msg = msg + 'Phone - ' + val + '\n'
+    elif action == 'Add':
+        msg = 'New customer ' + cust_name + ' successfully added to DB.'
+    elif action == 'Del':
+        msg = 'Customer ' + cust_name + ' successfully deleted from DB.'
+    elif action == 'Upd_Age':
+        msg = 'Age updated successfully for Customer ' + cust_name
+    elif action == 'Upd_Address':
+        msg = 'Address updated successfully for Customer ' + cust_name
+    elif action == 'Upd_Phone':
+        msg = 'Phone number updated successfully for Customer ' + cust_name
+    print(msg)
     print("\n")
 
 
+def find_customer(sock):
+    cust_name = get_valid_customer_name_input("Enter the customer's name whose record to find: ")
+    if not cust_name:
+        return
+    data = [1, cust_name]
+    res = do_client_send_receive(sock, data)
+    display_results(res, 'Find', cust_name)
+
+
 def add_customer(sock):
-    cust_name = input("Enter the customer name to add: ")
+    cust_name = get_valid_customer_name_input("Enter the customer's name whose record to add: ")
+    if not cust_name:
+        return
     cust_age = input("Enter customer's age: ")
     cust_address = input("Enter customer's address: ")
     cust_phone = input("Enter customer's phone number: ")
     cust_data = [2, [cust_name, cust_age, cust_address, cust_phone]]
     res = do_client_send_receive(sock, cust_data)
-    if isinstance(res[0], str) and res[0][0:7] == '$ERROR$':
-        print(res[0])
-    else:
-        print('New customer ' + cust_name + ' successfully added to DB.')
-    print("\n")
+    display_results(res, 'Add', cust_name)
 
 
 def delete_customer(sock):
-    cust_name = input("Enter the customer name to delete: ")
+    cust_name = get_valid_customer_name_input("Enter the customer's name whose record to delete: ")
+    if not cust_name:
+        return
     cust_data = [3, cust_name]
     res = do_client_send_receive(sock, cust_data)
-    if isinstance(res[0], str) and res[0][0:7] == '$ERROR$':
-        print(res[0])
-    else:
-        print('Customer ' + cust_name + ' successfully deleted from DB.')
-    print("\n")
+    display_results(res, 'Del', cust_name)
 
 
-def update_customer_age():
-    return 4
+def update_customer_age(sock):
+    prompt_name = "Enter the customer's name whose age to update: "
+    prompt_field = "Enter customer's new age: "
+    opr_idx = 4
+    opr_cd = 'Upd_Age'
+    update_customer_data(sock, prompt_name, prompt_field, opr_idx, opr_cd)
 
 
-def update_customer_address():
-    return 5
+def update_customer_address(sock):
+    prompt_name = "Enter the customer's name whose address to update: "
+    prompt_field = "Enter customer's new address: "
+    opr_idx = 5
+    opr_cd = 'Upd_Address'
+    update_customer_data(sock, prompt_name, prompt_field, opr_idx, opr_cd)
 
 
-def update_customer_phone():
-    return 6
+def update_customer_phone(sock):
+    prompt_name = "Enter the customer's name whose phone number to update: "
+    prompt_field = "Enter customer's new phone number: "
+    opr_idx = 6
+    opr_cd = 'Upd_Phone'
+    update_customer_data(sock, prompt_name, prompt_field, opr_idx, opr_cd)
+
+
+def update_customer_data(sock, prompt_name, prompt_field, operation_idx, operation_cd):
+    cust_name = get_valid_customer_name_input(prompt_name)
+    if not cust_name:
+        return
+    cust_phone = input(prompt_field)
+    cust_data = [operation_idx, [cust_name, cust_phone]]
+    res = do_client_send_receive(sock, cust_data)
+    display_results(res, operation_cd, cust_name)
 
 
 def print_report(sock):
@@ -104,7 +148,7 @@ def print_report(sock):
 
 def exit_code(sock):
     print("Good bye!!!!")
-    data = ['8', 'Client said Good bye!!!!']
+    data = [8, 'Client said Good bye!!!!']
     sock.sendall(str(data).encode())
     eval(sock.recv(4096).decode('utf-8'))
     return 'Exit'
