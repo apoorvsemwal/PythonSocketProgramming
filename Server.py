@@ -50,7 +50,7 @@ def add_customer(cust_data):
     if cust_data[0] in PYTHON_DB:
         return ['$ERROR$: Customer already exists']
     else:
-        PYTHON_DB[cust_data[0]] = cust_data[1]
+        PYTHON_DB[cust_data[0]] = cust_data[1:]
     return cust_data
 
 
@@ -77,18 +77,6 @@ def get_data_for_print_report():
         record.extend(PYTHON_DB[customer])
         sorted_data.append(record)
     return sorted_data
-
-
-# def check_age():
-#     pass
-#
-#
-# def check_address():
-#     pass
-#
-#
-# def check_phone():
-#     pass
 
 
 def is_valid_record(split_record):

@@ -67,12 +67,16 @@ def display_results(res, action, cust_name):
     print("\n")
 
 
-def find_customer(sock):
+def find_customer(sock, data):
+    return do_client_send_receive(sock, data)
+
+
+def find_customer_display_record(sock):
     cust_name = get_valid_customer_name_input("Enter the customer's name whose record to find: ")
     if not cust_name:
         return
     data = [1, cust_name]
-    res = do_client_send_receive(sock, data)
+    res = find_customer(sock, data)
     display_results(res, 'Find', cust_name)
 
 
@@ -80,12 +84,29 @@ def add_customer(sock):
     cust_name = get_valid_customer_name_input("Enter the customer's name whose record to add: ")
     if not cust_name:
         return
+    data = [1, cust_name]
+    res = find_customer(sock, data)
+    if isinstance(res[0], str) and res[0][0:7] != '$ERROR$':
+        print('$ERROR$: Customer already exists')
+        return
     cust_age = input("Enter customer's age: ")
     cust_address = input("Enter customer's address: ")
     cust_phone = input("Enter customer's phone number: ")
-    cust_data = [2, [cust_name, cust_age, cust_address, cust_phone]]
+    valid_phone = get_formatted_valid_phone(cust_phone)
+    if valid_phone is None:
+        print('Phone number has to be numeric and 10 digits long.')
+        return
+    cust_data = [2, [cust_name, cust_age, cust_address, valid_phone]]
     res = do_client_send_receive(sock, cust_data)
     display_results(res, 'Add', cust_name)
+
+
+def get_formatted_valid_phone(cust_phone):
+    if cust_phone.isnumeric() and len(cust_phone) == 10:
+        return cust_phone[0:3] + " " + cust_phone[3:6] + '-' + cust_phone[6:10]
+    elif len(cust_phone) > 0:
+        return None
+    return ""
 
 
 def delete_customer(sock):
@@ -125,8 +146,20 @@ def update_customer_data(sock, prompt_name, prompt_field, operation_idx, operati
     cust_name = get_valid_customer_name_input(prompt_name)
     if not cust_name:
         return
-    cust_phone = input(prompt_field)
-    cust_data = [operation_idx, [cust_name, cust_phone]]
+    data = [1, cust_name]
+    res = find_customer(sock, data)
+    if isinstance(res[0], str) and res[0][0:7] == '$ERROR$':
+        print(res[0])
+        return
+    cust_field = input(prompt_field)
+    if operation_idx == 6:
+        valid_phone = get_formatted_valid_phone(cust_field)
+        if valid_phone is None:
+            print('Phone number has to be numeric and 10 digits long.')
+            return
+        cust_data = [operation_idx, [cust_name, valid_phone]]
+    else:
+        cust_data = [operation_idx, [cust_name, cust_field]]
     res = do_client_send_receive(sock, cust_data)
     display_results(res, operation_cd, cust_name)
 
@@ -159,7 +192,7 @@ def invalid_choice():
 
 
 def process_user_input(inp, sock):
-    user_input = {'1': find_customer,
+    user_input = {'1': find_customer_display_record,
                   '2': add_customer,
                   '3': delete_customer,
                   '4': update_customer_age,
