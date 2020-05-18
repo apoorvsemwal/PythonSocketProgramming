@@ -29,13 +29,13 @@ def do_client_send_receive(sock, data):
         res = eval(sock.recv(4096).decode('utf-8'))
         return res
     except:
-        print('Issues connecting to server...')
+        print('$ERROR$: Issues connecting to server...')
 
 
 def get_valid_customer_name_input(prompt_msg):
     cust_name = input(prompt_msg)
     if not cust_name:
-        print('Customer name cannot be empty. Please try again...')
+        print('$ERROR$: Customer name cannot be empty. Please try again...')
         return
     return cust_name
 
@@ -155,7 +155,7 @@ def update_customer_data(sock, prompt_name, prompt_field, operation_idx, operati
     if operation_idx == 6:
         valid_phone = get_formatted_valid_phone(cust_field)
         if valid_phone is None:
-            print('Phone number has to be numeric and 10 digits long.')
+            print('$ERROR$: Phone number has to be numeric and 10 digits long.')
             return
         cust_data = [operation_idx, [cust_name, valid_phone]]
     else:
@@ -175,7 +175,7 @@ def print_report(sock):
             print('{:<25s}{:<10s}{:<40s}{:<12s}'.format(res[i][0], res[i][1], res[i][2],
                                                         res[i][3]))
     else:
-        print('No records in DB to show...')
+        print('$ERROR$: No records in DB to show.')
     print("\n")
 
 
@@ -187,8 +187,8 @@ def exit_code(sock):
     return 'Exit'
 
 
-def invalid_choice():
-    print("Invalid Choice!!!")
+def invalid_choice(sock):
+    print("$ERROR$: Invalid Choice number. Please try again.")
 
 
 def process_user_input(inp, sock):
