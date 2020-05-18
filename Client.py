@@ -94,7 +94,7 @@ def add_customer(sock):
     cust_phone = input("Enter customer's phone number: ")
     valid_phone = get_formatted_valid_phone(cust_phone)
     if valid_phone is None:
-        print('Phone number has to be numeric and 10 digits long.')
+        print('$ERROR$: Phone number has to be numeric and 10 digits long.')
         return
     cust_data = [2, [cust_name, cust_age, cust_address, valid_phone]]
     res = do_client_send_receive(sock, cust_data)
