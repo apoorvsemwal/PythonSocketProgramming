@@ -37,7 +37,7 @@ def get_valid_customer_name_input(prompt_msg):
     if not cust_name:
         print('$ERROR$: Customer name cannot be empty. Please try again...')
         return
-    return cust_name
+    return cust_name.upper()
 
 
 def display_results(res, action, cust_name):

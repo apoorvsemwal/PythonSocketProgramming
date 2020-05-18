@@ -89,7 +89,10 @@ def add_record_to_db(split_record):
     customer_details = []
     for i in range(1, len(split_record)):
         customer_details.append(split_record[i].strip())
-    PYTHON_DB[split_record[0].strip()] = customer_details
+    if len(customer_details) < 3:
+        for i in range(0, (4 - len(split_record))):
+            customer_details.append(" ")
+    PYTHON_DB[split_record[0].strip().upper()] = customer_details
 
 
 def load_data_in_memory():
@@ -97,10 +100,10 @@ def load_data_in_memory():
     records = data_file.readlines()
     for record in records:
         split_record = record.split("|", 3)
-        valid_record = is_valid_record(split_record)
-        if valid_record:
-            add_record_to_db(split_record)
-    return 0
+        if len(split_record) > 0:
+            valid_record = is_valid_record(split_record)
+            if valid_record:
+                add_record_to_db(split_record)
 
 
 def create_server():
