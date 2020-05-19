@@ -79,12 +79,6 @@ def get_data_for_print_report():
     return sorted_data
 
 
-def is_valid_record(split_record):
-    if split_record[0].strip().isnumeric():
-        return False
-    return True
-
-
 def add_record_to_db(split_record):
     customer_details = []
     for i in range(1, len(split_record)):
@@ -99,11 +93,9 @@ def load_data_in_memory():
     data_file = open("data.txt", "r")
     records = data_file.readlines()
     for record in records:
-        split_record = record.split("|", 3)
-        if len(split_record) > 0:
-            valid_record = is_valid_record(split_record)
-            if valid_record:
-                add_record_to_db(split_record)
+        split_record = record[:-1].split("|", 3)
+        if len(split_record) > 0 and split_record[0] != '':
+            add_record_to_db(split_record)
 
 
 def create_server():

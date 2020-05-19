@@ -34,10 +34,10 @@ def do_client_send_receive(sock, data):
 
 def get_valid_customer_name_input(prompt_msg):
     cust_name = input(prompt_msg)
-    if not cust_name:
-        print('$ERROR$: Customer name cannot be empty. Please try again...')
+    if not cust_name.strip():
+        print('$ERROR$: Customer name cannot be empty. Please try again.')
         return
-    return cust_name.upper()
+    return cust_name.strip().upper()
 
 
 def display_results(res, action, cust_name):
@@ -87,26 +87,32 @@ def add_customer(sock):
     data = [1, cust_name]
     res = find_customer(sock, data)
     if isinstance(res[0], str) and res[0][0:7] != '$ERROR$':
-        print('$ERROR$: Customer already exists')
+        print('$ERROR$: Customer already exists.')
         return
     cust_age = input("Enter customer's age: ")
     cust_address = input("Enter customer's address: ")
     cust_phone = input("Enter customer's phone number: ")
-    valid_phone = get_formatted_valid_phone(cust_phone)
-    if valid_phone is None:
-        print('$ERROR$: Phone number has to be numeric and 10 digits long.')
+    valid_age = get_valid_age(cust_age)
+    if valid_age is None:
+        print('$ERROR$: Age has to be numeric.')
         return
-    cust_data = [2, [cust_name, cust_age, cust_address, valid_phone]]
+    cust_data = [2, [cust_name, valid_age, cust_address.strip(), cust_phone.strip()]]
     res = do_client_send_receive(sock, cust_data)
     display_results(res, 'Add', cust_name)
 
 
-def get_formatted_valid_phone(cust_phone):
-    if cust_phone.isnumeric() and len(cust_phone) == 10:
-        return cust_phone[0:3] + " " + cust_phone[3:6] + '-' + cust_phone[6:10]
-    elif len(cust_phone) > 0:
+def get_valid_age(cust_age):
+    if len(cust_age) > 0 and not cust_age.strip().isnumeric():
         return None
-    return ""
+    return cust_age.strip()
+
+
+# def get_valid_phone(cust_phone):
+    # if cust_phone.strip().isnumeric() and len(cust_phone) == 10:
+    #     return cust_phone.strip()[0:3] + " " + cust_phone.strip()[3:6] + '-' + cust_phone.strip()[6:10]
+    # elif len(cust_phone.strip()) > 0:
+    #     return None
+    # return cust_phone.strip()
 
 
 def delete_customer(sock):
@@ -152,12 +158,13 @@ def update_customer_data(sock, prompt_name, prompt_field, operation_idx, operati
         print(res[0])
         return
     cust_field = input(prompt_field)
-    if operation_idx == 6:
-        valid_phone = get_formatted_valid_phone(cust_field)
-        if valid_phone is None:
-            print('$ERROR$: Phone number has to be numeric and 10 digits long.')
+    cust_field = cust_field.strip()
+    if operation_idx == 4:
+        valid_age = get_valid_age(cust_field)
+        if valid_age is None:
+            print('$ERROR$: Age has to be numeric.')
             return
-        cust_data = [operation_idx, [cust_name, valid_phone]]
+        cust_data = [operation_idx, [cust_name, valid_age]]
     else:
         cust_data = [operation_idx, [cust_name, cust_field]]
     res = do_client_send_receive(sock, cust_data)
@@ -188,7 +195,7 @@ def exit_code(sock):
 
 
 def invalid_choice(sock):
-    print("$ERROR$: Invalid Choice number. Please try again.")
+    print('$ERROR$: Invalid Choice number. Please try again.')
 
 
 def process_user_input(inp, sock):
