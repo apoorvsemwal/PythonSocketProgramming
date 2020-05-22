@@ -89,12 +89,19 @@ def add_record_to_db(split_record):
     PYTHON_DB[split_record[0].strip().upper()] = customer_details
 
 
+def is_valid_record(split_record):
+    # Check age to be numeric
+    if len(split_record) > 1 and (not split_record[1].strip().isnumeric() or int(split_record[1].strip()) <= 0):
+        return None
+    return True
+
+
 def load_data_in_memory():
     data_file = open("data.txt", "r")
     records = data_file.readlines()
     for record in records:
         split_record = record[:-1].split("|", 3)
-        if len(split_record) > 0 and split_record[0] != '':
+        if len(split_record) > 0 and split_record[0] != '' and is_valid_record(split_record):
             add_record_to_db(split_record)
 
 

@@ -90,29 +90,21 @@ def add_customer(sock):
         print('$ERROR$: Customer already exists.')
         return
     cust_age = input("Enter customer's age: ")
-    cust_address = input("Enter customer's address: ")
-    cust_phone = input("Enter customer's phone number: ")
     valid_age = get_valid_age(cust_age)
     if valid_age is None:
-        print('$ERROR$: Age has to be numeric.')
+        print('$ERROR$: Age has to be numeric and greater than 0.')
         return
+    cust_address = input("Enter customer's address: ")
+    cust_phone = input("Enter customer's phone number: ")
     cust_data = [2, [cust_name, valid_age, cust_address.strip(), cust_phone.strip()]]
     res = do_client_send_receive(sock, cust_data)
     display_results(res, 'Add', cust_name)
 
 
 def get_valid_age(cust_age):
-    if len(cust_age) > 0 and not cust_age.strip().isnumeric():
+    if len(cust_age) > 0 and (not cust_age.strip().isnumeric() or int(cust_age.strip()) <= 0):
         return None
     return cust_age.strip()
-
-
-# def get_valid_phone(cust_phone):
-    # if cust_phone.strip().isnumeric() and len(cust_phone) == 10:
-    #     return cust_phone.strip()[0:3] + " " + cust_phone.strip()[3:6] + '-' + cust_phone.strip()[6:10]
-    # elif len(cust_phone.strip()) > 0:
-    #     return None
-    # return cust_phone.strip()
 
 
 def delete_customer(sock):
@@ -162,7 +154,7 @@ def update_customer_data(sock, prompt_name, prompt_field, operation_idx, operati
     if operation_idx == 4:
         valid_age = get_valid_age(cust_field)
         if valid_age is None:
-            print('$ERROR$: Age has to be numeric.')
+            print('$ERROR$: Age has to be numeric and greater than 0.')
             return
         cust_data = [operation_idx, [cust_name, valid_age]]
     else:

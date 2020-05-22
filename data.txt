@@ -1,5 +1,7 @@
 John|43|123 Apple street|514 428-3452
 Katya| 26|49 Queen Mary Road|514 234-7654
+Katya| 26ADF|49 Queen Mary Road|514 234-7654
+Tummy|   |49 Queen Mary Road|514 234-7654
 Ahmad|91|1888 Pepper Lane|514 667-5643
 Ahmad|456|1888 Pepper Lane
 91
