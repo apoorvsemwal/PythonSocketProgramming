@@ -91,7 +91,8 @@ def add_record_to_db(split_record):
 
 def is_valid_record(split_record):
     # Check age to be numeric
-    if len(split_record) > 1 and (not split_record[1].strip().isnumeric() or int(split_record[1].strip()) <= 0):
+    if len(split_record) > 1 and len(split_record[1].strip()) > 0 and (
+            not split_record[1].strip().isnumeric() or int(split_record[1].strip()) <= 0):
         return None
     return True
 
@@ -100,10 +101,11 @@ def load_data_in_memory():
     data_file = open("data.txt", "r")
     records = data_file.readlines()
     for record in records:
-        split_record = record[:-1].split("|", 3)
+        split_record = record[:-1].split("|")
         if len(split_record) > 0 and split_record[0] != '' and is_valid_record(split_record):
             add_record_to_db(split_record)
-
+    print('File loaded into memory...')
+    print('Invalid records would be skipped during loading...')
 
 def create_server():
     HOST, PORT = "localhost", 9999
@@ -112,9 +114,11 @@ def create_server():
         # Activate the server; this will keep running until you
         # interrupt the program with Ctrl-C
         print('Server Started...')
+        print('Waiting for client to join...')
         server.serve_forever()
 
 
 if __name__ == "__main__":
     load_data_in_memory()
     create_server()
+
